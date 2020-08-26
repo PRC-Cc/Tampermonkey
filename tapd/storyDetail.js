@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tapd Story详情复制
 // @namespace    https://github.com/PRC-Cc/Tampermonkey.git
-// @version      0.1
+// @version      0.2
 // @description  Story 详情页面标题后添加复制按钮，用于复制精简srotyId
 // @author       Cache
 // @match        https://www.tapd.cn/*/stories/view*
@@ -19,7 +19,7 @@
   };
 
   window.onload = function () {
-    var storyId = location.href.replace(/.*view\/(.*)/, "$1").slice(-7);
+    var storyId = location.href.replace(/.*view\/([^#?]*)([?#]?).*/, "$1").slice(-7);
     document.querySelector("#locateForStoryInfo");
 
     var followEle = document.querySelector(".subject-title__follow");
