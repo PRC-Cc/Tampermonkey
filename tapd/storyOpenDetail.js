@@ -17,6 +17,13 @@
     }
   }
 
+  var STATUS_COLOR_MAP = {
+    NORMAL: "#bfbfbf",
+    HOVER: "#8a8a8a",
+    SUCCESS: "#1296db",
+    FAIL: "#d81e06",
+  };
+
   window.onload = function () {
     document
       .querySelectorAll("#resource_table > tbody > tr")
@@ -38,7 +45,7 @@
             "http://www.w3.org/2000/svg",
             "path"
           );
-          svg.style.width = "17px";
+          svg.style.width = "14px";
           svg.style.padding = "0 2px";
           svg.style.cursor = "pointer";
 
@@ -47,10 +54,17 @@
           svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
           path.setAttribute(
             "d",
-            "M896 469.333333l-298.666667-298.666667 0 170.666667C298.666667 384 170.666667 597.333333 128 810.666667c106.666667-149.333333 256-217.6 469.333333-217.6L597.333333 768 896 469.333333z"
+            "M938.666667 512a42.666667 42.666667 0 0 0-42.666667 42.666667v298.666666c0 23.573333-19.093333 42.666667-42.666667 42.666667H170.666667c-23.573333 0-42.666667-19.093333-42.666667-42.666667V170.666667c0-23.573333 19.093333-42.666667 42.666667-42.666667h298.666666a42.666667 42.666667 0 0 0 0-85.333333H170.666667C99.978667 42.666667 42.666667 99.978667 42.666667 170.666667v682.666666c0 70.688 57.312 128 128 128h682.666666c70.688 0 128-57.312 128-128V554.666667a42.666667 42.666667 0 0 0-42.666666-42.666667z m42.666666-426.666667v256a42.666667 42.666667 0 0 1-85.333333 0V188.330667l-349.557333 349.546666a42.666667 42.666667 0 0 1-60.32-60.330666L835.658667 128H682.666667a42.666667 42.666667 0 0 1 0-85.333333h256a42.666667 42.666667 0 0 1 42.666666 42.666666z"
           );
-          path.setAttribute("fill", "#8a8a8a");
+          path.setAttribute("fill", STATUS_COLOR_MAP.NORMAL);
           svg.appendChild(path);
+
+          svg.addEventListener("mouseenter", function () {
+            path.setAttribute("fill", STATUS_COLOR_MAP.HOVER);
+          });
+          svg.addEventListener("mouseleave", function () {
+            path.setAttribute("fill", STATUS_COLOR_MAP.NORMAL);
+          });
 
           svg.addEventListener("click", function (e) {
             e.stopPropagation();
