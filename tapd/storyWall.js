@@ -8,15 +8,6 @@
 // ==/UserScript==
 
 (function () {
-  function insertAfter(newEl, targetEl) {
-    var parentEl = targetEl.parentNode;
-    if (parentEl.lastChild == targetEl) {
-      parentEl.appendChild(newEl);
-    } else {
-      parentEl.insertBefore(newEl, targetEl.nextSibling);
-    }
-  }
-
   var STATUS_COLOR_MAP = {
     NORMAL: "#bfbfbf",
     HOVER: "#8a8a8a",
@@ -35,6 +26,8 @@
           var title = li.querySelector(".note_head");
 
           var containerEle = document.createElement("div");
+          containerEle.style.display = "inline-block";
+
           var inputEle = document.createElement("input");
           inputEle.style.width = "1px";
           inputEle.style.opacity = 0;
@@ -87,7 +80,8 @@
           containerEle.appendChild(svg);
           containerEle.appendChild(inputEle);
 
-          insertAfter(containerEle, title.firstElementChild);
+          title.firstElementChild.style.display = "flex";
+          title.firstElementChild.append(containerEle);
         });
       });
   };
