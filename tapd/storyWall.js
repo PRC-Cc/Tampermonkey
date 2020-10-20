@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tapd 故事墙复制
 // @namespace    https://github.com/PRC-Cc/Tampermonkey.git
-// @version      0.1
+// @version      0.2
 // @description  在tapd故事墙单项标题后添加复制按钮，用于复制精简storyId
 // @author       Cache
 // @match        https://www.tapd.cn/*/storywalls*
