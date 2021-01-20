@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tapd 故事墙打开任务详情
 // @namespace    https://github.com/PRC-Cc/Tampermonkey.git
-// @version      0.2
+// @version      0.3
 // @description  在tapd故事墙单项标题后添加详情按钮，用于打开任务详情
 // @author       Cache
 // @match        https://www.tapd.cn/*/storywalls*
