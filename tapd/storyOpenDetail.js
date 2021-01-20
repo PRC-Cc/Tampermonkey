@@ -5,11 +5,12 @@
 // @description  在tapd故事墙单项标题后添加详情按钮，用于打开任务详情
 // @author       Cache
 // @match        https://www.tapd.cn/*/storywalls*
+// @run-at      document-start
 // ==/UserScript==
 
 (function () {
   function insertAfter(newEl, targetEl) {
-    var parentEl = targetEl.parentNode;
+    const parentEl = targetEl.parentNode;
     if (parentEl.lastChild == targetEl) {
       parentEl.appendChild(newEl);
     } else {
@@ -17,37 +18,67 @@
     }
   }
 
-  var STATUS_COLOR_MAP = {
+  function isParent(obj, parentObj) {
+    while (
+      obj != undefined &&
+      obj != null &&
+      obj.tagName.toUpperCase() != "BODY"
+    ) {
+      if (obj == parentObj) {
+        return true;
+      }
+      obj = obj.parentNode;
+    }
+    return false;
+  }
+
+  const STATUS_COLOR_MAP = {
     NORMAL: "#bfbfbf",
     HOVER: "#8a8a8a",
     SUCCESS: "#1296db",
     FAIL: "#d81e06",
   };
+  const triggerElements = [];
+
+  window.addEventListener(
+    "click",
+    (e) => {
+      const triggerElement = triggerElements.find(
+        ([item]) => item === e.target || isParent(e.target, item)
+      );
+      if (!triggerElement) return;
+      const [ele, callback] = triggerElement;
+      e.stopImmediatePropagation();
+      e.stopPropagation();
+      callback();
+    },
+    true
+  );
 
   window.onload = function () {
     document
       .querySelectorAll("#resource_table > tbody > tr")
       .forEach(function (tr) {
-        var stories = tr.querySelectorAll("li[story_id]");
+        const stories = tr.querySelectorAll("li[story_id]");
         stories.forEach(function (li) {
-          var storyId = li.getAttribute("story_id");
-          var title = li.querySelector(".note_head");
+          const storyId = li.getAttribute("story_id");
+          const title = li.querySelector(".note_head");
           title.style.display = "flex";
           title.style["justify-content"] = "space-between";
 
-          var containerEle = document.createElement("div");
+          const containerEle = document.createElement("div");
+          containerEle.style.cursor = "pointer";
 
-          var svg = document.createElementNS(
+          const svg = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "svg"
           );
-          var path = document.createElementNS(
+          const path = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "path"
           );
           svg.style.width = "14px";
           svg.style.padding = "0 2px";
-          svg.style.cursor = "pointer";
 
           svg.setAttribute("viewBox", "0 0 1024 1024");
           svg.setAttribute("version", "1.1");
@@ -59,21 +90,23 @@
           path.setAttribute("fill", STATUS_COLOR_MAP.NORMAL);
           svg.appendChild(path);
 
-          svg.addEventListener("mouseenter", function () {
+          containerEle.addEventListener("mouseenter", function () {
             path.setAttribute("fill", STATUS_COLOR_MAP.HOVER);
           });
-          svg.addEventListener("mouseleave", function () {
+          containerEle.addEventListener("mouseleave", function () {
             path.setAttribute("fill", STATUS_COLOR_MAP.NORMAL);
           });
 
-          svg.addEventListener("click", function (e) {
-            e.stopPropagation();
-            var detailPath = location.href.replace(
-              /(https:\/\/www.tapd.cn\/.*\/)storywalls.*/,
-              "$1" + "stories/view/" + storyId
-            );
-            window.open(detailPath);
-          });
+          triggerElements.push([
+            containerEle,
+            () => {
+              const detailPath = location.href.replace(
+                /(https:\/\/www.tapd.cn\/.*\/)storywalls.*/,
+                "$1" + "stories/view/" + storyId
+              );
+              window.open(detailPath);
+            },
+          ]);
 
           containerEle.appendChild(svg);
           insertAfter(containerEle, title.firstElementChild);

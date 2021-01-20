@@ -1,50 +1,81 @@
 // ==UserScript==
 // @name         Tapd 故事墙复制
 // @namespace    https://github.com/PRC-Cc/Tampermonkey.git
-// @version      0.2
+// @version      0.3
 // @description  在tapd故事墙单项标题后添加复制按钮，用于复制精简storyId
 // @author       Cache
 // @match        https://www.tapd.cn/*/storywalls*
+// @run-at      document-start
 // ==/UserScript==
 
 (function () {
-  var STATUS_COLOR_MAP = {
+  function isParent(obj, parentObj) {
+    while (
+      obj != undefined &&
+      obj != null &&
+      obj.tagName.toUpperCase() != "BODY"
+    ) {
+      if (obj == parentObj) {
+        return true;
+      }
+      obj = obj.parentNode;
+    }
+    return false;
+  }
+
+  const STATUS_COLOR_MAP = {
     NORMAL: "#bfbfbf",
     HOVER: "#8a8a8a",
     SUCCESS: "#1296db",
     FAIL: "#d81e06",
   };
+  const triggerElements = [];
+
+  window.addEventListener(
+    "click",
+    (e) => {
+      const triggerElement = triggerElements.find(
+        ([item]) => item === e.target || isParent(e.target, item)
+      );
+      if (!triggerElement) return;
+      const [ele, callback] = triggerElement;
+      e.stopImmediatePropagation();
+      e.stopPropagation();
+      callback();
+    },
+    true
+  );
 
   window.onload = function () {
     document
       .querySelectorAll("#resource_table > tbody > tr")
       .forEach(function (tr) {
-        var stories = tr.querySelectorAll("li[story_id]");
+        const stories = tr.querySelectorAll("li[story_id]");
         stories.forEach(function (li) {
-          var storyId = li.getAttribute("story_id");
-          var shortStoryId = storyId.slice(-7);
-          var title = li.querySelector(".note_head");
+          const storyId = li.getAttribute("story_id");
+          const shortStoryId = storyId.slice(-7);
+          const title = li.querySelector(".note_head");
 
-          var containerEle = document.createElement("div");
+          const containerEle = document.createElement("div");
           containerEle.style.display = "inline-block";
+          containerEle.style.cursor = "pointer";
 
-          var inputEle = document.createElement("input");
+          const inputEle = document.createElement("input");
           inputEle.style.width = "1px";
           inputEle.style.opacity = 0;
           inputEle.style.border = "none";
           inputEle.value = shortStoryId;
 
-          var svg = document.createElementNS(
+          const svg = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "svg"
           );
-          var path = document.createElementNS(
+          const path = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "path"
           );
           svg.style.width = "15px";
           svg.style.padding = "0 2px";
-          svg.style.cursor = "pointer";
 
           svg.setAttribute("viewBox", "0 0 1024 1024");
           svg.setAttribute("version", "1.1");
@@ -56,26 +87,28 @@
           path.setAttribute("fill", STATUS_COLOR_MAP.NORMAL);
           svg.appendChild(path);
 
-          svg.addEventListener("mouseenter", function () {
+          containerEle.addEventListener("mouseenter", function () {
             path.setAttribute("fill", STATUS_COLOR_MAP.HOVER);
           });
-          svg.addEventListener("mouseleave", function () {
+          containerEle.addEventListener("mouseleave", function () {
             path.setAttribute("fill", STATUS_COLOR_MAP.NORMAL);
           });
 
-          svg.addEventListener("click", function (e) {
-            e.stopPropagation();
-            inputEle.select();
-            var copyResult = document.execCommand("Copy");
-            if (!copyResult) {
-              copyResult = window.clipboardData.setData("text", storyId);
-            }
-            if (copyResult) {
-              path.setAttribute("fill", STATUS_COLOR_MAP.SUCCESS);
-            } else {
-              path.setAttribute("fill", STATUS_COLOR_MAP.FAIL);
-            }
-          });
+          triggerElements.push([
+            containerEle,
+            () => {
+              inputEle.select();
+              const copyResult = document.execCommand("Copy");
+              if (!copyResult) {
+                copyResult = window.clipboardData.setData("text", storyId);
+              }
+              if (copyResult) {
+                path.setAttribute("fill", STATUS_COLOR_MAP.SUCCESS);
+              } else {
+                path.setAttribute("fill", STATUS_COLOR_MAP.FAIL);
+              }
+            },
+          ]);
 
           containerEle.appendChild(svg);
           containerEle.appendChild(inputEle);
